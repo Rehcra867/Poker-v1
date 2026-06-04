@@ -18,6 +18,9 @@ const chipsSpan =
 const messageDiv =
   document.getElementById("message");
 
+const lobbyList =
+  document.getElementById("lobbyList");
+
 function register() {
 
   socket.emit("register", {

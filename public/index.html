@@ -30,12 +30,47 @@
 </div>
 
 <div id="lobby" class="hidden">
+
   <h2>Lobby</h2>
 
   <p>
     Chips:
     <span id="chips">0</span>
   </p>
+
+  <hr>
+
+  <h3>Create Lobby</h3>
+
+  <input
+    id="lobbyName"
+    placeholder="Lobby Name">
+
+  <input
+    id="smallBlind"
+    type="number"
+    value="5">
+
+  <input
+    id="bigBlind"
+    type="number"
+    value="10">
+
+  <input
+    id="botCount"
+    type="number"
+    value="0">
+
+  <button onclick="createLobby()">
+    Create Lobby
+  </button>
+
+  <hr>
+
+  <h3>Available Lobbies</h3>
+
+  <div id="lobbyList"></div>
+
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

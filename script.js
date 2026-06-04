@@ -1,3 +1,10 @@
+const loginDiv = document.getElementById("login");
+const lobbyDiv = document.getElementById("lobby");
+const chipsSpan = document.getElementById("chips");
+const lobbiesDiv = document.getElementById("lobbies");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const betAmountInput = document.getElementById("betAmount");
 const socket = io();
 
 let currentUser = null;
@@ -8,10 +15,10 @@ function register(){
         "register",
         {
             username:
-            username.value,
+            usernameInput.value,
 
             password:
-            password.value
+            passwordInput.value
         }
     );
 }
@@ -22,10 +29,10 @@ function login(){
         "login",
         {
             username:
-            username.value,
+            usernameInput.value,
 
             password:
-            password.value
+            passwordInput.value
         }
     );
 }
@@ -36,10 +43,10 @@ socket.on(
 
         currentUser=user;
 
-        login.classList.add("hidden");
-        lobby.classList.remove("hidden");
+        loginDiv.classList.add("hidden");
+        lobbyDiv.classList.remove("hidden");
 
-        chips.innerText=user.chips;
+        chipsSpan.innerText = user.chips;
     }
 );
 
@@ -62,7 +69,7 @@ socket.on(
     "lobbies",
     data=>{
 
-        lobbies.innerHTML="";
+        lobbiesDiv.innerHTML="";
 
         data.forEach(lobby=>{
 
@@ -85,6 +92,10 @@ socket.on(
     }
 );
 
+socket.on("registerSuccess", () => {
+    alert("Account created! You can now log in.");
+});
+
 function check(){
     socket.emit("action","check");
 }
@@ -105,7 +116,7 @@ function raiseBet(){
             type:"raise",
             amount:
             Number(
-                betAmount.value
+                betAmountInput.value
             )
         }
     );

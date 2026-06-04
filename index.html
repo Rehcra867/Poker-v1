@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Poker Online</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="login">
+    <h1>Poker Online</h1>
+
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+</div>
+
+<div id="lobby" class="hidden">
+
+    <h2>Lobby</h2>
+
+    <div>
+        Chips:
+        <span id="chips">0</span>
+    </div>
+
+    <button onclick="claimDaily()">
+        Daily Reward
+    </button>
+
+    <button onclick="createLobby()">
+        Create Lobby
+    </button>
+
+    <div id="lobbies"></div>
+
+</div>
+
+<div id="game" class="hidden">
+
+    <div id="table">
+
+        <div id="communityCards"></div>
+
+        <div id="pot">
+            Pot: 0
+        </div>
+
+    </div>
+
+    <div id="hand"></div>
+
+    <div id="controls">
+
+        <button onclick="check()">Check</button>
+        <button onclick="call()">Call</button>
+        <button onclick="fold()">Fold</button>
+
+        <input
+            id="betAmount"
+            type="number"
+            value="10">
+
+        <button onclick="raiseBet()">
+            Raise
+        </button>
+
+    </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

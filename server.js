@@ -82,6 +82,7 @@ chips:500
 };
 
 saveUsers();
+socket.emit("registerSuccess");
 });
 
 socket.on(

@@ -63,4 +63,129 @@ socket.on("loginSuccess", (user) => {
   chipsSpan.innerText =
     user.chips;
 
+  socket.emit("getLobbies");
 });
+
+function createLobby(){
+
+  socket.emit("createLobby",{
+
+    name:
+      document.getElementById("lobbyName").value,
+
+    smallBlind:
+      Number(
+        document.getElementById("smallBlind").value
+      ),
+
+    bigBlind:
+      Number(
+        document.getElementById("bigBlind").value
+      ),
+
+    botCount:
+      Number(
+        document.getElementById("botCount").value
+      ),
+
+    maxPlayers:8
+
+  });
+
+}
+
+function joinLobby(id){
+
+  socket.emit(
+    "joinLobby",
+    id
+  );
+
+}
+
+socket.on("lobbyList",(lobbies)=>{
+
+  lobbyList.innerHTML="";
+
+  lobbies.forEach(lobby=>{
+
+    const div =
+      document.createElement("div");
+
+    div.innerHTML=`
+
+      <strong>${lobby.name}</strong>
+
+      <br>
+
+      Players:
+      ${lobby.current_players}
+      /
+      ${lobby.max_players}
+
+      <br>
+
+      Blinds:
+      ${lobby.small_blind}
+      /
+      ${lobby.big_blind}
+
+      <br>
+
+      <button
+        onclick="joinLobby('${lobby.id}')">
+
+        Join
+
+      </button>
+
+      <hr>
+
+    `;
+
+    lobbyList.appendChild(div);
+
+  });
+
+});
+
+socket.on(
+"joinedLobby",
+lobby=>{
+
+document.getElementById(
+"lobby"
+).innerHTML=`
+
+<h2>
+${lobby.name}
+</h2>
+
+<p>
+
+Blinds:
+
+${lobby.small_blind}
+
+/
+
+${lobby.big_blind}
+
+</p>
+
+<p>
+
+Waiting for players...
+
+</p>
+
+<button>
+
+Start Game
+
+</button>
+
+`;
+
+});
+

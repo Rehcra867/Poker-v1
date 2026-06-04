@@ -1,86 +1,239 @@
-const express = require("express");
-const http = require("http");
-const bcrypt = require("bcrypt");
-const { Server } = require("socket.io");
-const { createClient } = require("@supabase/supabase-js");
+const socket = io();
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const usernameInput =
+  document.getElementById("username");
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const passwordInput =
+  document.getElementById("password");
 
-app.use(express.static("public"));
+const loginDiv =
+  document.getElementById("login");
 
-io.on("connection", (socket) => {
-  console.log("Client connected");
+const lobbyDiv =
+  document.getElementById("lobby");
 
-  socket.on("register", async (data) => {
-    try {
-      const username = data.username.trim();
-      const password = data.password;
+const chipsSpan =
+  document.getElementById("chips");
 
-      const hash = await bcrypt.hash(password, 10);
+const messageDiv =
+  document.getElementById("message");
 
-      const { error } = await supabase
-        .from("users")
-        .insert({
-          username,
-          password_hash: hash
-        });
+let currentUser = null;
 
-      if (error) {
-        socket.emit("registerError", error.message);
-        return;
-      }
+/* --------------------
+   ACCOUNT FUNCTIONS
+-------------------- */
 
-      socket.emit("registerSuccess");
-    } catch (err) {
-      socket.emit("registerError", err.message);
-    }
+function register() {
+
+  socket.emit("register", {
+    username: usernameInput.value,
+    password: passwordInput.value
   });
 
-  socket.on("login", async (data) => {
-    try {
-      const { data: users, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("username", data.username)
-        .limit(1);
+}
 
-      if (error || users.length === 0) {
-        socket.emit("loginError", "User not found");
-        return;
-      }
+function login() {
 
-      const user = users[0];
-
-      const valid = await bcrypt.compare(
-        data.password,
-        user.password_hash
-      );
-
-      if (!valid) {
-        socket.emit("loginError", "Invalid password");
-        return;
-      }
-
-      socket.emit("loginSuccess", {
-        username: user.username,
-        chips: user.chips
-      });
-
-    } catch (err) {
-      socket.emit("loginError", err.message);
-    }
+  socket.emit("login", {
+    username: usernameInput.value,
+    password: passwordInput.value
   });
+
+}
+
+/* --------------------
+   LOGIN EVENTS
+-------------------- */
+
+socket.on("registerSuccess", () => {
+
+  messageDiv.innerText =
+    "Registration successful!";
+
 });
 
-const PORT = process.env.PORT || 3000;
+socket.on("registerError", (msg) => {
 
-server.listen(PORT, () => {
-  console.log(`Running on port ${PORT}`);
+  messageDiv.innerText =
+    "Register Error: " + msg;
+
 });
+
+socket.on("loginError", (msg) => {
+
+  messageDiv.innerText =
+    "Login Error: " + msg;
+
+});
+
+socket.on("loginSuccess", (user) => {
+
+  currentUser = user;
+
+  loginDiv.classList.add("hidden");
+
+  lobbyDiv.classList.remove("hidden");
+
+  chipsSpan.innerText =
+    user.chips;
+
+  socket.emit("getLobbies");
+
+});
+
+/* --------------------
+   LOBBY FUNCTIONS
+-------------------- */
+
+function createLobby() {
+
+  const lobbyName =
+    document.getElementById("lobbyName").value;
+
+  const smallBlind =
+    Number(
+      document.getElementById("smallBlind").value
+    );
+
+  const bigBlind =
+    Number(
+      document.getElementById("bigBlind").value
+    );
+
+  const botCount =
+    Number(
+      document.getElementById("botCount").value
+    );
+
+  socket.emit("createLobby", {
+
+    name: lobbyName,
+
+    smallBlind: smallBlind,
+
+    bigBlind: bigBlind,
+
+    botCount: botCount,
+
+    maxPlayers: 8
+
+  });
+
+}
+
+function joinLobby(id) {
+
+  socket.emit(
+    "joinLobby",
+    id
+  );
+
+}
+
+/* --------------------
+   LOBBY LIST
+-------------------- */
+
+socket.on("lobbyList", (lobbies) => {
+
+  const lobbyList =
+    document.getElementById("lobbyList");
+
+  if (!lobbyList) return;
+
+  lobbyList.innerHTML = "";
+
+  lobbies.forEach((lobby) => {
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "lobbyCard";
+
+    div.innerHTML = `
+
+      <h4>${lobby.name}</h4>
+
+      <p>
+        Players:
+        ${lobby.current_players}
+        /
+        ${lobby.max_players}
+      </p>
+
+      <p>
+        Blinds:
+        ${lobby.small_blind}
+        /
+        ${lobby.big_blind}
+      </p>
+
+      <p>
+        Bots:
+        ${lobby.bot_count}
+      </p>
+
+      <button
+        onclick="joinLobby('${lobby.id}')">
+
+        Join Lobby
+
+      </button>
+
+      <hr>
+
+    `;
+
+    lobbyList.appendChild(div);
+
+  });
+
+});
+
+/* --------------------
+   JOINED LOBBY
+-------------------- */
+
+socket.on("joinedLobby", (lobby) => {
+
+  lobbyDiv.innerHTML = `
+
+    <h2>${lobby.name}</h2>
+
+    <p>
+      Host:
+      ${lobby.host_username}
+    </p>
+
+    <p>
+      Blinds:
+      ${lobby.small_blind}
+      /
+      ${lobby.big_blind}
+    </p>
+
+    <p>
+      Waiting for players...
+    </p>
+
+    <button id="startGameBtn">
+      Start Game
+    </button>
+
+    <div id="playerList"></div>
+
+  `;
+
+});
+
+/* --------------------
+   REFRESH LOBBIES
+-------------------- */
+
+function refreshLobbies() {
+
+  socket.emit("getLobbies");
+
+}

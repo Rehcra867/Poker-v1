@@ -1,0 +1,14 @@
+{
+  "name": "poker-game",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}

@@ -28,17 +28,18 @@ app.use(
 
 let users={};
 
-if(
-    fs.existsSync(
-        "./data/users.json"
-    )
-){
-    users=
-    JSON.parse(
-        fs.readFileSync(
-            "./data/users.json"
-        )
-    );
+if (fs.existsSync("./data/users.json")) {
+    try {
+        const content = fs.readFileSync("./data/users.json", "utf8");
+
+        users = content.trim()
+            ? JSON.parse(content)
+            : {};
+    }
+    catch (err) {
+        console.log("users.json invalid, creating new database");
+        users = {};
+    }
 }
 
 function saveUsers(){

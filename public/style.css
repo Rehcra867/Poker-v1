@@ -1,1 +1,1 @@
-body{font-family:Arial,sans-serif;text-align:center;margin-top:50px;}
+body{background:#0f172a;color:white;font-family:Arial,sans-serif;display:flex;justify-content:center;padding-top:80px}.card{background:#1e293b;padding:30px;border-radius:12px;width:350px}input{width:100%;padding:10px;margin:6px 0;box-sizing:border-box}button{padding:10px;margin:5px;cursor:pointer}#status{min-height:24px}
